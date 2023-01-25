@@ -8,6 +8,7 @@ public class Define
     {
         Left,
         Right,
+        Stop,
     }
     public enum PlayerMove
     {
@@ -15,5 +16,15 @@ public class Define
         Down,
         Left,
         Right,
+        Stop,
     }
+    public enum State
+    {
+        IDLE,
+        ATTACKREADY,
+        ATTACK,
+        HIT,
+        MOVE
+    }
+
 }

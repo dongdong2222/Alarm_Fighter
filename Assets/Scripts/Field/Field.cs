@@ -5,9 +5,29 @@ using UnityEngine;
 public abstract class Field : MonoBehaviour
 {
     List<GameObject> gridArray = new List<GameObject>();//전체 field data
-
+    
     List<GameObject> playergridArray = new List<GameObject>();//Player field data
     List<GameObject> monstergridArray = new List<GameObject>();//Monster field data
+    // getGridArray -> 타입 (플레이어 or 몬스터)에 따라 playergridArray 또는 monstergridArray를 반환한다. (1.17 재윤 추가)
+    public List<GameObject> getGridArray(int type)
+    {
+        if (type == 1) // player 
+        {
+            return playergridArray;
+        }
+        else if (type == 2) // monster
+        {
+            return monstergridArray;
+        }
+        else if(type ==3)
+        {
+            return gridArray;
+        }
+        else
+        {
+            return null;
+        }
+    }
 
     protected GameObject grid_All;
 
@@ -16,6 +36,11 @@ public abstract class Field : MonoBehaviour
 
     protected float height;//높이
     protected float width;//길이
+
+    // getHeight(), getWidth() -> 만들어진 전체 타일의 width와 height를 반환한다.  (1.17 재윤 추가)
+    public int getHeight() { return (int)height; }
+    public int getWidth() { return (int)width; }
+
 
     private float scale_x;//스케일 x축
     private float scale_y;//스케일 y축
@@ -63,6 +88,7 @@ public abstract class Field : MonoBehaviour
                 grid.transform.position = new Vector3((float)(((x_size + gap) * scale_x * x + (x_size + gap) * scale_x * y) + location_x), (float)(((-gap - y_size) * scale_y * x + (gap + y_size) * scale_y * y) + location_y), 0f);
                 grid.transform.SetParent(grid_All.transform);//하나로 뭉치기
                 gridArray.Add(grid);//데이터 정보 저장
+                Debug.Log(grid);
             }
         }
     }
@@ -70,12 +96,55 @@ public abstract class Field : MonoBehaviour
     {
         for (int i = 0; i < gridArray.Count; i++)//Basic Player Field 
         {
-            if (i < 6) playergridArray.Add(gridArray[i]);
-            if (i > 6) monstergridArray.Add(gridArray[i]);
+            // 분할하는 부분 나누기 (원래는 6을 기준으로 나뉨) (1.17 재윤 수정)
+            if (i < gridArray.Count - 6) playergridArray.Add(gridArray[i]);
+            else monstergridArray.Add(gridArray[i]);
+
         }
 
     }
-    void Start()
+
+    public void WarningAttack(int[] indexs)
+    {
+        for(int i=0;i<indexs.Length;i++)
+        {
+            SpriteRenderer temp = gridArray[indexs[i]].GetComponent<SpriteRenderer>();
+            temp.color = Color.red;
+        }
+    }
+    public int GetGridArrayIndex(int ind, int type = 2)
+    {
+        if(type == 1)
+        {
+            return ind;
+        }
+        else if(type ==2)
+        {
+            return ind + 9;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    public void Damage(int[] indexs)
+    {
+        for (int i = 0; i < indexs.Length; i++)
+        {
+            GameObject temp = gridArray[indexs[i]];
+            SpriteRenderer sr = temp.GetComponent<SpriteRenderer>();
+            StartCoroutine("ActiveDamageField", temp);
+            sr.color = new Color(1, 1, 1, 0);
+        }
+    }
+    IEnumerator ActiveDamageField(GameObject go)
+    {
+        PolygonCollider2D poly = go.GetComponent<PolygonCollider2D>();
+        poly.enabled = true;
+        yield return new WaitForFixedUpdate();
+        poly.enabled = false;
+    }
+    void Awake()
     {
         setWidth();
         Setheight();
@@ -85,5 +154,7 @@ public abstract class Field : MonoBehaviour
         Rotation(grid_All);
         prepabMove(grid_All);
         seperatedGridArea();
+        Managers.Field.setField(this);
+        Field temp = Managers.Field.getField();
     }
 }
