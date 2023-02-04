@@ -30,7 +30,12 @@ public class MonsterVer2 : FieldObject
     protected override void BitBehave()
     {
         Animator anim = GetComponent<Animator>();
-        switch(nextBehavior)
+        
+        //���� currentInd�� �ٽ� �� ����� ������
+        SpriteRenderer temp = objectList[currentInd].GetComponent<SpriteRenderer>();
+        temp.color = new Color(87 / 255f, 87 / 255f, 87 / 255f, 1);        //Isolated Diamond(prefab)�� ��
+        
+        switch (nextBehavior)
         {
             // idle º¸·ù
             /*
@@ -39,16 +44,31 @@ public class MonsterVer2 : FieldObject
                 updateIdle();
                 break;*/
             case Define.State.ATTACKREADY:
+                
                 anim.Play("AttackReady");
-                updateAtttackReady();       //AtttackReady ´Ü°è¿¡ ¸Â´Â º¯È­°¡ ³ªÅ¸³ªµµ·Ï ÇÔ
+
+                updateAtttackReady();       //AtttackReady �ܰ迡 �´� ��ȭ�� ��Ÿ������ ��
+
+                temp = objectList[currentInd].GetComponent<SpriteRenderer>();
+                temp.color = Color.magenta;
+                
+
                 break;
             case Define.State.ATTACK:
                 anim.Play("Attack");
                 updateAttack();
+
+                temp = objectList[currentInd].GetComponent<SpriteRenderer>();
+                temp.color = Color.magenta;
+                
                 break;
             case Define.State.MOVE:
                 anim.Play("Move");
                 updateMove();
+
+                temp = objectList[currentInd].GetComponent<SpriteRenderer>();
+                temp.color = Color.magenta;
+
                 break;
 
         }
